@@ -47,8 +47,6 @@ const getUsers = (req, res) => {
     });
 };
 
-
-
 const getUserById = (req, res) => {
   const id = parseInt(req.params.id);
   database
@@ -70,7 +68,8 @@ const getUserById = (req, res) => {
 //route PostUsers
 
 const postUser = (req, res) => {
-  const { firstname, lastname, email, city, language, hashedPassword } = req.body;
+  const { firstname, lastname, email, city, language, hashedPassword } =
+    req.body;
 
   database
     .query(
@@ -94,7 +93,8 @@ const postUser = (req, res) => {
 const updateUser = (req, res) => {
   const id = parseInt(req.params.id);
 
-  const { firstname, lastname, email, city, language, hashedPassword  } = req.body;
+  const { firstname, lastname, email, city, language, hashedPassword } =
+    req.body;
 
   database
 
@@ -144,5 +144,30 @@ const deleteUser = (req, res) => {
       res.status(500).send("Error deleting user");
     });
 };
+//login user
+const getUserByEmailWithPasswordAndPassToNext = (req, res, next) => {
+  const { email } = req.body;
 
-module.exports = { getUsers, getUserById, postUser, deleteUser, updateUser };
+  database
+
+    .query("select * from users where email = ?", [email])
+
+    .then(([users]) => {
+      if (users[0] != null) {
+        req.user = users[0];
+        console.log(req.user.hashedPassword);
+
+        next();
+      } else {
+        res.sendStatus(401);
+      }
+    })
+
+    .catch((err) => {
+      console.error(err);
+
+      res.status(500).send("Error retrieving data from database");
+    });
+};
+
+module.exports = { getUsers, getUserById, postUser, deleteUser, updateUser, getUserByEmailWithPasswordAndPassToNext };
