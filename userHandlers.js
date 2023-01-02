@@ -47,8 +47,6 @@ const getUsers = (req, res) => {
     });
 };
 
-
-
 const getUserById = (req, res) => {
   const id = parseInt(req.params.id);
   database
@@ -70,7 +68,8 @@ const getUserById = (req, res) => {
 //route PostUsers
 
 const postUser = (req, res) => {
-  const { firstname, lastname, email, city, language, hashedPassword } = req.body;
+  const { firstname, lastname, email, city, language, hashedPassword } =
+    req.body;
 
   database
     .query(
@@ -94,14 +93,15 @@ const postUser = (req, res) => {
 const updateUser = (req, res) => {
   const id = parseInt(req.params.id);
 
-  const { firstname, lastname, email, city, language, hashedPassword  } = req.body;
+  const { firstname, lastname, email, city, language} =
+    req.body;
 
   database
 
     .query(
-      "update users set firstname = ?, lastname = ?, email = ?, city = ?, language = ?, hashedPassword= ?, where id = ?",
+      "update users set firstname = ?, lastname = ?, email = ?, city = ?, language = ?, where id = ?",
 
-      [firstname, lastname, email, city, language, hashedPassword, id]
+      [firstname, lastname, email, city, language, id]
     )
 
     .then(([result]) => {
@@ -119,7 +119,7 @@ const updateUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getUserById, postUser, updateUser };
+
 
 //route Delete Users
 
@@ -145,4 +145,30 @@ const deleteUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getUserById, postUser, deleteUser, updateUser };
+//login user
+const getUserByEmailWithPasswordAndPassToNext = (req, res, next) => {
+  const { email } = req.body;
+console.log(req.body);
+  database
+
+    .query("select * from users where email = ?", [email])
+
+    .then(([users]) => {
+      if (users[0] != null) {
+        req.user = users[0];
+       
+
+        next();
+      } else {
+        res.sendStatus(401);
+      }
+    })
+
+    .catch((err) => {
+      console.error(err);
+
+      res.status(500).send("Error retrieving data from database");
+    });
+};
+
+module.exports = { getUsers, getUserById, postUser, deleteUser, updateUser, getUserByEmailWithPasswordAndPassToNext };
