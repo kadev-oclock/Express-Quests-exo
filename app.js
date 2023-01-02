@@ -16,6 +16,9 @@ const userHandlers = require("./userHandlers");
 const { hashPassword, verifyPassword,verifyToken } = require("./auth");
 
 
+
+
+
 app.use(express.json());
 
 
@@ -32,6 +35,7 @@ app.delete("/api/users/:id", userHandlers.deleteUser);
 app.post("/api/login", userHandlers.getUserByEmailWithPasswordAndPassToNext, verifyPassword);
 
 app.use(verifyToken);
+
 
 
 
